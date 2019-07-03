@@ -57,8 +57,11 @@
 	
 	<script src="./src/js/dragula.js"></script>
 	<script src="./src/js/displace.js"></script>
+	<script src="./src/js/pipe.js"></script>
 
 	<script>
+		const pipe = window.pipe;
+
 		const drake = dragula([document.querySelector('#contents-1-id')], {
 			moves: function (el, source, handle, sibling) {
 				// console.log(el, source, handle, sibling);	
@@ -81,9 +84,24 @@
 				},
 				onMouseUp: function () {
 					console.log(el.offsetLeft, el.offsetTop);
+					pipe.pageEvent(el.offsetLeft);
 				}
 			})
 		});
+
+		
+		setTimeout(function() {
+			pipe.configChange('contents', [
+				{
+					type: 'img',
+					url: 'http://xx.xx.png'
+				}	
+			]);
+		}, 3000);
+
+		pipe.monitor = function(key, obj) {
+			console.log(key, obj);
+		}
 	</script>
 </body>
 </html>
