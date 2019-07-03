@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>iframe测试</title>
+	<style>
+		body {
+			margin: 0; 
+			padding: 0;
+		}
+
+		.header-pac {
+			height: 400px;
+			background: yellow;
+		}
+
+		.ifr-box {
+			text-align: center;
+		}
+
+		.ifr-box iframe {
+			border: solid 1px #445689;
+		}
+	</style>
+</head>
+<body>
+
+	<div>
+		<div class="header-pac">
+
+		</div>
+		<div class="ifr-box">
+			<iframe src="http://cqa.eastmoney.com:8999/index.html" id="myiframe" onload="changeFrameHeight()" scrolling="no" frameborder="0"></iframe>
+		</div>
+	
+	</div>
+	<script>
+		window.addEventListener("message", function() {
+			// For Chrome, the origin property is in the event.originalEvent
+			// object. 
+			// 这里不准确，chrome没有这个属性
+			// var origin = event.origin || event.originalEvent.origin; 
+			var origin = event.origin
+			if (origin === "http://cqa.eastmoney.com:8999") {
+				// window.location.href = event.data + window.location.href;
+				window.location.href = event.data + 'http://cqa.eastmoney.com:8999';
+			}
+			// ...
+		}, false);
+
+		function changeFrameHeight() {
+			var ifm = document.getElementById("myiframe");
+			ifm.height = document.documentElement.clientHeight;
+			ifm.width = document.documentElement.clientWidth;
+		}
+		window.onresize = function () {
+			changeFrameHeight();
+		} 
+	</script>
+</body>
+</html>

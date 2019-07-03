@@ -1,0 +1,80 @@
+{
+	title: '活动名称',
+	activeRule: true, // 是否显示规则，折叠状态显示规则
+	contents: [
+		{
+			type: 'img',
+			url: 'http://xx.xx.png'
+		}
+	],
+	buttons: [
+		{
+			type: 'button',
+			action: 'app', // app, href
+			url: 'http://xxx.xx.xxx',
+			image: 'http://xx.xx.png',
+			width: '',
+			height: '',
+			position: {
+				type: 'fixed', // fixed moved
+				bottom: '',
+				left: ''
+			}
+		}, 
+		{
+			type: 'button',
+			action: 'href',
+			url: '',
+			image: '',
+			width: '',
+			height: '',
+			position: {
+				type: 'moved',
+				top: '',
+				left: '',
+			}
+		},
+		{
+			type: 'button',
+			action: 'passport',
+			url: '',
+			image: '',
+			width: '',
+			height: '',
+			position: {
+				type: 'moved',
+				top: '',
+				left: '',
+			}
+		}
+	],
+	share: {
+		title: '分享title',
+		content: '分享内容',
+		image: 'https://xx.xx.xx.png'
+	},
+	topBanner:  [ 
+		{
+			image: 'http://xx.xxx.png',
+			url: 'http://xx.xx.xx',
+			action: 'app', // app, href, passport
+		},
+		{
+			image: 'http://xx.xxx.png',
+			url: 'http://xx.xx.xx',
+			action: 'app', // app, href, passport
+		}
+	],
+	bottomBanner: [
+		{
+			image: 'http://xx.xxx.png',
+			url: 'http://xx.xx.xx',
+			action: 'app', // app, href, passport
+		},
+		{
+			image: 'http://xx.xxx.png',
+			url: 'http://xx.xx.xx',
+			action: 'app', // app, href, passport
+		},
+	]
+}
