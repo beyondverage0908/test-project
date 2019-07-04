@@ -4,7 +4,7 @@
 	contents: [
 		{
 			type: 'img',
-			url: 'http://xx.xx.png'
+			image: 'http://xx.xx.png'
 		}
 	],
 	buttons: [
@@ -55,11 +55,13 @@
 	},
 	topBanner:  [ 
 		{
+			type: 'top-banner',
 			image: 'http://xx.xxx.png',
 			url: 'http://xx.xx.xx',
 			action: 'app', // app, href, passport
 		},
 		{
+			type: 'top-banner',
 			image: 'http://xx.xxx.png',
 			url: 'http://xx.xx.xx',
 			action: 'app', // app, href, passport

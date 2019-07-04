@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="./src/css/dragula.css">
 	<style>
 		body {
-			margin-top: 0px;
+			margin: 0px;
 		}
 		.contents-1 {
 			width: 750px;
@@ -44,64 +44,79 @@
 	</style>
 </head>
 <body>
-	<div id="all-contents-id" style="position: absolute;">
+	<div id="the-current-page" style="position:absolute; width: 750px;"></div>
+	<!-- <div id="all-contents-id" style="position: absolute; display: none;">
 		<div id="contents-1-id" class="contents-1">
 			<img class="content" src="./src/img/peak.png" alt="">
 			<img class="content" src="./src/img/rank.png" alt="">
 			<img class="content" src="./src/img/peak.png" alt="">
 			<img class="content" src="./src/img/rank.png" alt="">
 		</div>
-		<button class="btn btn-1">button1</button>
-		<button class="btn btn-2">button2</button>
-	</div>
+		<div>
+			<button class="btn btn-1">button1</button>
+			<button class="btn btn-2">button2</button>
+		</div>
+	</div> -->
 	
-	<script src="./src/js/dragula.js"></script>
-	<script src="./src/js/displace.js"></script>
+	<script src="./src/libs/jquery-1.9.1.min.js"></script>
+	<!-- <script src="./src/js/dragula.js"></!-->
+	<!-- <script src="./src/js/displace.js"></script> --> -->
 	<script src="./src/js/pipe.js"></script>
+	<!-- <script src="./src/libs/swiper/swiper.animate1.0.3.min.js"></script> -->
+	<!-- <script src="./src/libs/swiper/swiper.js"></script> -->
 
 	<script>
 		const pipe = window.pipe;
 
-		const drake = dragula([document.querySelector('#contents-1-id')], {
-			moves: function (el, source, handle, sibling) {
-				// console.log(el, source, handle, sibling);	
-				console.log(el.offsetTop); 
-				return true; // elements are always draggable by default
-			},
-			accepts: function (el, target, source, sibling) {
-				// console.log(el, target, source, sibling);
-				// console.log(el.offsetTop);
-				return true; // elements can be dropped in any of the `containers` by default
-			},
-		});
+		// const drake = dragula([document.querySelector('#contents-1-id')], {
+		// 	moves: function (el, source, handle, sibling) {
+		// 		// console.log(el, source, handle, sibling);	
+		// 		// console.log(el.offsetTop); 
+		// 		return true; // elements are always draggable by default
+		// 	},
+		// 	accepts: function (el, target, source, sibling) {
+		// 		// console.log(el, target, source, sibling);
+		// 		// console.log(el.offsetTop);
+		// 		return true; // elements can be dropped in any of the `containers` by default
+		// 	},
+		// });
 
-		const displace = window.displacejs;
-		['.btn-1', '.btn-2'].map(cls => {
-			const el = document.querySelector(cls);
-			displace(el, {
-				onMouseDown: function () {
-					console.log(el.offsetLeft, el.offsetTop);
-				},
-				onMouseUp: function () {
-					console.log(el.offsetLeft, el.offsetTop);
-					pipe.pageEvent(el.offsetLeft);
-				}
-			})
-		});
+		// const displace = window.displacejs;
+		// ['.btn-1', '.btn-2'].map(cls => {
+		// 	const el = document.querySelector(cls);
+		// 	displace(el, {
+		// 		onMouseDown: function () {
+		// 			// console.log(el.offsetLeft, el.offsetTop);
+		// 		},
+		// 		onMouseUp: function () {
+		// 			console.log(el.offsetLeft, el.offsetTop);
+		// 			pipe.pageEmit('contents', el.offsetLeft);
+		// 		}
+		// 	})
+		// });
 
-		
+
+		// 模拟配置平台消息		
 		setTimeout(function() {
 			pipe.configChange('contents', [
 				{
 					type: 'img',
-					url: 'http://xx.xx.png'
-				}	
+					image: 'https://cdn2.ettoday.net/images/4120/d4120647.jpg'
+				},
+				{
+					type: 'img',
+					image: 'https://cdn2.ettoday.net/images/4031/d4031158.jpg'
+				},
+				{
+					type: 'img',
+					image: 'http://i.epochtimes.com/assets/uploads/2018/12/181228053126100707-600x400.jpg'
+				}
 			]);
 		}, 3000);
-
-		pipe.monitor = function(key, obj) {
+		// 模拟配置平台监听消息
+		pipe.monitor(function(key, obj) {
 			console.log(key, obj);
-		}
+		});
 	</script>
 </body>
 </html>
