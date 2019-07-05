@@ -44,7 +44,7 @@
 	</style>
 </head>
 <body>
-	<div id="the-current-page" style="position:absolute; width: 750px;"></div>
+	<div id="the-current-page" style="position:absolute;"></div>
 	<!-- <div id="all-contents-id" style="position: absolute; display: none;">
 		<div id="contents-1-id" class="contents-1">
 			<img class="content" src="./src/img/peak.png" alt="">
@@ -60,7 +60,7 @@
 	
 	<script src="./src/libs/jquery-1.9.1.min.js"></script>
 	<!-- <script src="./src/js/dragula.js"></!-->
-	<!-- <script src="./src/js/displace.js"></script> --> -->
+	<!-- <script src="./src/js/displace.js"></script> --> 
 	<script src="./src/js/pipe.js"></script>
 	<!-- <script src="./src/libs/swiper/swiper.animate1.0.3.min.js"></script> -->
 	<!-- <script src="./src/libs/swiper/swiper.js"></script> -->
@@ -95,6 +95,101 @@
 		// 	})
 		// });
 
+		const ajaxConfig = {
+			pagewidth: 750,
+			activeRule: true,
+			title: '东财南京活动一览表',
+			contents: [
+				{
+					type: 'img',
+					image: 'http://img95.699pic.com/photo/50055/5642.jpg_wh300.jpg'
+				},
+				{
+					type: 'img',
+					image: 'https://cdn.pixabay.com/photo/2019/06/25/07/02/light-bulb-4297600__340.jpg'
+				},
+				{
+					type: 'img',
+					image: 'http://static.runoob.com/images/demo/demo4.jpg'
+				},
+				{
+					type: 'img',
+					image: 'http://static.runoob.com/images/demo/demo4.jpg'
+				},
+				{
+					type: 'img',
+					image: 'http://static.runoob.com/images/demo/demo4.jpg'
+				}
+			],
+			buttons: [
+				{
+					type: 'button',
+					action: 'app', // app, href
+					target: 'self', // self, app
+					url: 'url://secheme://url:xxx',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					width: '',
+					height: '',
+					position: {
+						top: 150,
+						left: 0
+					}
+				},
+				{
+					type: 'button',
+					action: 'href',
+					target: 'app', // self, app
+					url: 'http://www.baidu.com',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					width: '',
+					height: '',
+					position: {
+						top: 300,
+						left: 200,
+					}
+				},
+				{
+					type: 'button',
+					action: 'passport',
+					target: 'self', // self, app
+					url: '',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					width: '',
+					height: '',
+					position: {
+						top: 500,
+						left: 400
+					}
+				}
+			],
+			topBanner: [
+				{
+					image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
+					url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+					action: 'href', // app, href, passport
+				},
+				{
+					image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
+					url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+					action: 'app', // app, href, passport
+				}
+			],
+			bottomBanner: [
+				{
+					image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
+					url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+					action: 'href', // app, href, passport
+				}
+			],
+			share: {
+				title: '分享title',
+				content: '分享内容',
+				image: 'https://xx.xx.xx.png'
+			},
+		};
+		pipe.init(ajaxConfig);
+		pipe.renderDom(ajaxConfig, 375, false);
+
 
 		// 模拟配置平台消息		
 		setTimeout(function() {
@@ -112,10 +207,19 @@
 					image: 'http://i.epochtimes.com/assets/uploads/2018/12/181228053126100707-600x400.jpg'
 				}
 			]);
+			pipe.storage.save('contents', [
+				{
+					type: 'img',
+					image: 'https://cdn2.ettoday.net/images/4120/d4120647.jpg'
+				}
+			], 'configer');
 		}, 3000);
 		// 模拟配置平台监听消息
 		pipe.monitor(function(key, obj) {
-			console.log(key, obj);
+			// console.log(key, obj);
+		});
+		pipe.storage.listener(function(key, value) {
+			console.log(key, value);
 		});
 	</script>
 </body>

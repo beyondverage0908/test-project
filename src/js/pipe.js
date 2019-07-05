@@ -2,97 +2,44 @@
 	root['pipe'] = factory();
 })(this, function() {
 
-	const _config = {
-		activeRule: true,
-		contents: [
-			{
-				type: 'img',
-				image: 'http://img95.699pic.com/photo/50055/5642.jpg_wh300.jpg'
-			},
-			{
-				type: 'img',
-				image: 'https://cdn.pixabay.com/photo/2019/06/25/07/02/light-bulb-4297600__340.jpg'
-			},
-			{
-				type: 'img',
-				image: 'http://static.runoob.com/images/demo/demo4.jpg'
-			},
-			{
-				type: 'img',
-				image: 'http://static.runoob.com/images/demo/demo4.jpg'
-			},
-			{
-				type: 'img',
-				image: 'http://static.runoob.com/images/demo/demo4.jpg'
-			}
-		],
-		buttons: [
-			{
-				type: 'button',
-				action: 'app', // app, href
-				url: 'url://secheme://url:xxx',
-				image: 'http://127.0.0.1:9000/src/img/rank.png',
-				width: '',
-				height: '',
-				position: {
-					top: '300',
-					left: '400'
-				}
-			},
-			{
-				type: 'button',
-				action: 'href',
-				url: 'http://www.baidu.com',
-				image: 'http://127.0.0.1:9000/src/img/rank.png',
-				width: '',
-				height: '',
-				position: {
-					top: '400',
-					left: '0',
-				}
-			},
-			{
-				type: 'button',
-				action: 'passport',
-				url: '',
-				image: '',
-				width: '',
-				height: '',
-				position: {
-					top: '200',
-					left: '300',
-				}
-			}
-		],
-		topBanner: [
-			{
-				image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
-				url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-				action: 'href', // app, href, passport
-			},
-			{
-				image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
-				url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-				action: 'app', // app, href, passport
-			}
-		],
-		bottomBanner: [
-			{
-				image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
-				url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-				action: 'href', // app, href, passport
-			},
-			{
-				image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
-				url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-				action: 'app', // app, href, passport
-			}
-		],
-	};
-
-
+	let _config = null;
 	let _callback_monitor = null;
 	let _is_preview = false;
+	let _pagewidth = 750;
+	let _ratio = 1;
+
+	function Storage(configuration) {
+		this.__config = configuration;
+		this.__listener = null;
+		this.__monitor = null;
+
+		this.get = function(key) {
+			return this.__config[key];
+		}
+		this.save = function(key, value, origin) {
+			this.__config[key] = value;
+
+			if (this.__listener && origin === 'configer') {
+				this.__listener(key, value);
+			}
+			if (this.__monitor && origin === 'drager') {
+				this.__monitor(key, value);
+			}
+		}
+		// 配置平台监听
+		this.listener = function(cb) {
+			if (cb && typeof cb === 'function') {
+				this.__listener = cb;
+			}
+		}
+		// 拖拽平台监听
+		this.monitor = function(cb) {
+			if (cb && typeof cb === 'function') {
+				this.__monitor = cb;
+			}
+		}
+	}
+	
 
 	function addScript(path) {
 		$('<script>', {
@@ -124,12 +71,10 @@
 			const css = {
 				cursor: 'pointer',
 				position: 'absolute',
-				top: el.position.top + 'px',
-				left: el.position.left + 'px'
+				top: el.position.top * _ratio + 'px',
+				left: el.position.left * _ratio + 'px'
 			};
-			const props = {
-				src: el.image
-			};
+			const props = {};
 			if (_is_preview) {
 				props.click = () => {
 					if (el.action === 'app') {
@@ -144,8 +89,10 @@
 			} else {
 				props.class = el.__name
 			}
-			const button = $('<img>', props).css(css)
-			return button;
+			const a = $('<a>', props).css(css);
+			const button = $('<img>', { src: el.image });
+			button.appendTo(a);
+			return a;
 		} else if (el && el.type && el.type === 'top-banner') {
 			const css = {};
 			if (el.action) {
@@ -171,12 +118,16 @@
 
 	// 由配置对象生成页面
 	function renderNode(_key, obj) {
-		if (_key === 'activeRule') {
+		if (_key === 'title') {
+			document.title = obj;
+		} else if (_key === 'activeRule') {
 			if (obj === true) {
 				
 			}
+		} else if (_key === 'share') {
+			
 		} else if (_key === 'contents') {
-			$('#the-contents').empty();
+	 		$('#the-contents').empty();
 			$('<div>', {
 				id: 'the-contents',
 			}).appendTo('#the-current-page');
@@ -202,15 +153,20 @@
 		} else if (_key === 'topBanner') {
 			$('#the-top-banners').remove();
 			if (obj && obj.length) {
+				const css = {
+					top: 0,
+					left: 0,
+					width: _pagewidth + 'px'
+				}
+				if (_is_preview) {
+					css.position = 'fixed';
+				} else {
+					css.position = 'absolute';
+				}
 				$('<div>', {
 					id: 'the-top-banners',
 					class: 'swiper-container'
-				}).css({
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					width: '750px'
-				}).appendTo('#the-current-page');
+				}).css(css).appendTo('#the-current-page');
 				$('<div>', {
 					id: 'the-top-banner-wrapper',
 					class: 'swiper-wrapper'
@@ -225,15 +181,20 @@
 		} else if (_key === 'bottomBanner') {
 			$('#the-bottom-banners').remove();
 			if (obj && obj.length) {
+				const css = {
+					bottom: 0,
+					left: 0,
+					width: _pagewidth + 'px'
+				}
+				if (_is_preview) {
+					css.position = 'fixed';
+				} else {
+					css.position = 'absolute';
+				}
 				$('<div>', {
 					id: 'the-bottom-banners',
 					class: 'swiper-container'
-				}).css({
-					position: 'fixed',
-					bottom: 0,
-					left: 0,
-					width: '750px'
-				}).appendTo('#the-current-page');
+				}).css(css).appendTo('#the-current-page');
 				$('<div>', {
 					id: 'the-bottom-banner-wrapper',
 					class: 'swiper-wrapper'
@@ -248,8 +209,24 @@
 		}
 	}
 
-	function render(config, isPreview) {
+	function setViewPort() {
+		let viewport = document.querySelector("meta[name=viewport]");
+		viewport.setAttribute('content', `width=${_pagewidth || 750}, initial-scale=1.0`);
+	}
+
+	function setTopContainer() {
+		$('#the-current-page').css({
+			width: _pagewidth + 'px'
+		})
+	}
+
+	function render(config, pagewidth, isPreview) {
+		_config = config;
 		_is_preview = isPreview;
+		_pagewidth = pagewidth;
+		_ratio = _pagewidth / (config.pagewidth || 750); // 确定页面布局比率
+		setViewPort();
+		setTopContainer();
 
 		if (config.hasOwnProperty('topBanner') || config.hasOwnProperty('bottomBanner')) {
 			addScript('./src/libs/swiper/swiper.animate1.0.3.min.js');
@@ -267,23 +244,38 @@
 			renderNode(k, config[k])
 		}
 	}
-	render(_config, false);
+	// render(_config, false);
 
 	function setupSwiper() {
+		console.log(getQueryString('kk'));
+		const flag = getQueryString('kk');
 		// 需要先判断是否topBanners是否存在，且数据大于1
 		if (_config && _config['topBanner'] && _config['topBanner'].length) {
-			new Swiper('#the-top-banners', {
+			const options = {
 				autoplay: true,
-				loop: true
-			})
+			};
+			if (_config['topBanner'].length > 1) {
+				options.loop = true;
+			}
+			new Swiper('#the-top-banners', options);
 		}
 		// 需要先判断是否bottomBanners是否存在，且数据大于1
-		if (_config && _config['bottomBanner'] && _config['bottomBanner']) {
-			new Swiper('#the-bottom-banners', {
+		if (_config && _config['bottomBanner'] && _config['bottomBanner'].length) {
+			const options = {
 				autoplay: true,
-				loop: true
-			})
+			};
+			if (_config['bottomBanner'].length > 1) {
+				options.loop = true;
+			}
+			new Swiper('#the-bottom-banners', options);
 		}
+	}
+
+
+	function getQueryString(name) {
+		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+		var r = window.location.search.substr(1).match(reg);
+		if (r != null) return unescape(r[2]); return null;
 	}
 
 	function buttonsDisplace() {
@@ -301,18 +293,18 @@
 					},
 					onMouseUp: function () {
 						// 定位矫正
-						if (el.offsetLeft < 0) {
+						if ($(el).offset().left < 0) {
 							$(el).css({
 								left: 0
 							})
-						} else if (el.offsetLeft + el.clientWidth > 750) {
+						} else if ($(el).offset().left + $(el).width() > _pagewidth) {
 							$(el).css({
-								left: 750 - el.clientWidth
+								left: _pagewidth - el.clientWidth
 							})
 						}
 						if (_config && _config['topBanner'] && _config['topBanner']) {
 							const topHeight = $('#the-top-banners').height();
-							if (el.offsetTop < topHeight) {
+							if ($(el).offset().top < topHeight) {
 								$(el).css({
 									top: topHeight
 								})	
@@ -322,7 +314,7 @@
 							const bottomHeight = $('#the-bottom-banners').height();
 							const contentHeight = $('#the-current-page').height();
 							const maxOffsetTop = contentHeight - bottomHeight - el.clientHeight;
-							if (el.offsetTop > maxOffsetTop) {
+							if ($(el).offset().top > maxOffsetTop) {
 								$(el).css({
 									top: maxOffsetTop
 								})
@@ -354,21 +346,30 @@
 				return true; // elements are always draggable by default
 			},
 			accepts: function (el, target, source, sibling) {
+				return true; // elements can be dropped in any of the `containers` by default
+			},
+			release: function(e) { 
+				// 监听鼠标谈起mouseup事件
 				if (_config && _config['contents'] && _config['contents'].length) {
 					const newContents = [];
 					const contents = $('#the-contents').children('img');
+					let isSame = true;
 					for (let i = 0; i < contents.length; i++) {
 						const imgIndex = $(contents[i]).attr('data-index');
 						newContents.push(_config.contents[imgIndex]);
-					}
-					_config.contents = newContents;
-					// 更新element img标签的data-index属性
-					// console.log(newContents);
 
-					pipe.pageEmit('contents', newContents);
+						if (_config.contents[i].image !== _config.contents[imgIndex].image) {
+							isSame = false;
+						}
+					}
+					// 对比原有数据
+					if (!isSame) {
+						_config.contents = newContents;
+						pipe.pageEmit('contents', newContents);
+						renderNode('contents', newContents); // 更新element img标签的data-index属性
+					}
 				}
-				return true; // elements can be dropped in any of the `containers` by default
-			},
+			}
 		});
 	}
 
@@ -397,42 +398,37 @@
 				'margin-bottom': bottomHeight
 			})
 		}
+		// 计算出按钮图片适配后的长宽
+		if (_config && _config['buttons'] && _config['buttons'].length) {
+			const buttons = $('#the-buttons').children();
+			for (let i = 0; i < buttons.length; i++) {
+				const btnWidth = $($(buttons[i]).children()[0]).width();
+				$($(buttons[i]).children()[0]).css({
+					width: btnWidth * _ratio
+				})
+			}
+		}
 	}
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// 拖拽平台修改通知到配置平台
 	function pageEmit(key, obj) {
 		if (_callback_monitor) {
-			_callback_monitor(key, obj);
+			// 利用json stringify进行深拷贝 - 场景是由于config对象来源于json字符串
+			const copyObj = JSON.parse(JSON.stringify(obj));
+			_callback_monitor(key, copyObj);
 		}
+	}
+	// 接受配置平台的消息
+	function configListener(key, obj) {
+		renderNode(key, obj);
 	}
 
 	// 配置平台的改动需要通知到我这边进行数据结构的修改
 	function configChange(_key, _obj) {
 		_config[_key] = _obj;
-		renderNode(_key, _obj);
+		if (configListener && typeof configListener === 'function') {
+			configListener(_key, _obj);
+		}
 	}
 
 	function monitor(fn) {
@@ -440,12 +436,22 @@
 			_callback_monitor = fn;
 		}	
 	}
-	
+
 	const factory = {};
+
+	function init(config) {
+		let storage = new Storage(config);
+		factory['storage'] = storage;
+		storage.monitor(function (key, value) {
+			console.log(key, value);
+		})
+	}
+
 	factory['pageEmit'] = pageEmit;
 	factory['configChange'] = configChange;
 	factory['monitor'] = monitor;
-	factory['renderDom'] = render; 
+	factory['renderDom'] = render;
+	factory['init'] = init;
 
 	return factory;
 });
