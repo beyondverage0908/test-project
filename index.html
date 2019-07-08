@@ -98,6 +98,11 @@
 		const ajaxConfig = {
 			pagewidth: 750,
 			activeRule: true,
+			rule: {
+				active: true, // true
+				image: './src/img/rule.png',
+				content: ''
+			},
 			title: '东财南京活动一览表',
 			contents: [
 				{
@@ -127,7 +132,7 @@
 					action: 'app', // app, href
 					target: 'self', // self, app
 					url: 'url://secheme://url:xxx',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					width: '',
 					height: '',
 					position: {
@@ -140,7 +145,7 @@
 					action: 'href',
 					target: 'app', // self, app
 					url: 'http://www.baidu.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					width: '',
 					height: '',
 					position: {
@@ -153,7 +158,7 @@
 					action: 'passport',
 					target: 'self', // self, app
 					url: '',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					width: '',
 					height: '',
 					position: {
