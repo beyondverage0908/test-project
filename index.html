@@ -99,6 +99,11 @@
 		const ajaxConfig = {
 			pagewidth: 750,
 			activeRule: true,
+			rule: {
+				active: true, // true
+				image: './src/img/rule.png',
+				content: ''
+			},
 			title: '东财南京活动一览表',
 			contents: [
 				{
@@ -141,7 +146,7 @@
 					target: 'web', // self, app
 					action: 'passport', // href, passport
 					url: 'http://www.baidu.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					width: '',
 					height: '',
 					position: {

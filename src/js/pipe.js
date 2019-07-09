@@ -128,7 +128,27 @@
 	}
 
 	function createEl(el) {
-		if (el && el.type && el.type === 'img') {
+		if (el && el.active) {
+			const css = {
+				top: 0,
+				right: 20,
+				position: 'absolute',
+				zIndex: 10,
+				width: 42
+			};
+			if (_is_preview) {
+				css.position = 'fixed';
+			} else {
+				css.position = 'absolute';
+			}
+			const img = $('<img>', {
+				src: el.image,
+				click: () => {
+					alert('跳转到规则页面');
+				}
+			}).css(css)
+			return img;
+		} else if (el && el.type && el.type === 'img') {
 			const props = {
 				src: el.image
 			}
@@ -198,10 +218,13 @@
 	function renderNode(_key, obj) {
 		if (_key === 'title') {
 			document.title = obj;
-		} else if (_key === 'activeRule') {
-			if (obj === true) {
-				
-			}
+		} else if (_key === 'rule') {
+			$('#the-rule').empty();
+			$('<div>', {
+				id: 'the-rule'
+			}).appendTo('#the-current-page');
+			const el = createEl(obj);
+			el.appendTo('#the-rule');
 		} else if (_key === 'share') {
 			
 		} else if (_key === 'contents') {
