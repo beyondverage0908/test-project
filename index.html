@@ -44,7 +44,8 @@
 	</style>
 </head>
 <body>
-	<div id="the-current-page" style="position:absolute;"></div>
+	<div id="the-current-page" style="position:absolute;">
+	</div>
 	<!-- <div id="all-contents-id" style="position: absolute; display: none;">
 		<div id="contents-1-id" class="contents-1">
 			<img class="content" src="./src/img/peak.png" alt="">
@@ -124,9 +125,9 @@
 			buttons: [
 				{
 					type: 'button',
-					action: 'app', // app, href
-					target: 'self', // self, app
-					url: 'url://secheme://url:xxx',
+					target: 'web', // web, app
+					action: 'href', // href, passport
+					url: 'http://www.baidu.com',
 					image: 'http://127.0.0.1:9000/src/img/rank.png',
 					width: '',
 					height: '',
@@ -137,8 +138,8 @@
 				},
 				{
 					type: 'button',
-					action: 'href',
-					target: 'app', // self, app
+					target: 'web', // self, app
+					action: 'passport', // href, passport
 					url: 'http://www.baidu.com',
 					image: 'http://127.0.0.1:9000/src/img/rank.png',
 					width: '',
@@ -150,14 +151,29 @@
 				},
 				{
 					type: 'button',
-					action: 'passport',
-					target: 'self', // self, app
-					url: '',
+					action: 'href',
+					target: 'app', // self, app
+					url: 'some-scheme.xx//',
+					downloadUrl: 'http://downloadurl.xx.com',
 					image: 'http://127.0.0.1:9000/src/img/rank.png',
 					width: '',
 					height: '',
 					position: {
 						top: 500,
+						left: 400
+					}
+				},
+				{
+					type: 'button',
+					action: 'passport',
+					target: 'app', // self, app
+					url: 'some-scheme.xx//',
+					downloadUrl: 'http://downloadurl.xx.com',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					width: '',
+					height: '',
+					position: {
+						top: 600,
 						left: 400
 					}
 				}
@@ -186,41 +202,45 @@
 				content: '分享内容',
 				image: 'https://xx.xx.xx.png'
 			},
+			passport: {
+				// image: 'http://127.0.0.1:9000/src/img/rank.png',
+				position: {
+					top: 111,
+					left: 1111
+				}
+			}
 		};
-		pipe.init(ajaxConfig);
-		pipe.renderDom(ajaxConfig, 375, false);
+		setTimeout(function() {
+			pipe.init(ajaxConfig);
+			pipe.renderDom(750, false);
+		}, 10);
 
 
 		// 模拟配置平台消息		
-		setTimeout(function() {
-			pipe.configChange('contents', [
-				{
-					type: 'img',
-					image: 'https://cdn2.ettoday.net/images/4120/d4120647.jpg'
-				},
-				{
-					type: 'img',
-					image: 'https://cdn2.ettoday.net/images/4031/d4031158.jpg'
-				},
-				{
-					type: 'img',
-					image: 'http://i.epochtimes.com/assets/uploads/2018/12/181228053126100707-600x400.jpg'
-				}
-			]);
-			pipe.storage.save('contents', [
-				{
-					type: 'img',
-					image: 'https://cdn2.ettoday.net/images/4120/d4120647.jpg'
-				}
-			], 'configer');
-		}, 3000);
-		// 模拟配置平台监听消息
-		pipe.monitor(function(key, obj) {
-			// console.log(key, obj);
-		});
-		pipe.storage.listener(function(key, value) {
-			console.log(key, value);
-		});
+		// setTimeout(function() {
+		// 	pipe.storage.save('contents', [
+		// 		{
+		// 			type: 'img',
+		// 			image: 'https://cdn2.ettoday.net/images/4120/d4120647.jpg'
+		// 		},
+		// 		{
+		// 			type: 'img',
+		// 			image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
+		// 		},
+		// 		{
+		// 			type: 'img',
+		// 			image: 'https://cdn.pixabay.com/photo/2019/06/25/07/02/light-bulb-4297600__340.jpg'
+		// 		},
+		// 		{
+		// 			type: 'img',
+		// 			image: 'http://static.runoob.com/images/demo/demo4.jpg'
+		// 		}
+		// 	], 'configer');
+		// }, 3000);
+		// // 模拟配置平台监听消息
+		// pipe.storage.listener(function(key, value) {
+		// 	console.log(key, value);
+		// });
 	</script>
 </body>
 </html>
