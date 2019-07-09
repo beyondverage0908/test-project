@@ -5,47 +5,14 @@
 	<meta name="viewport" content="width=750, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>测试</title>
-	<link rel="stylesheet" href="./src/css/dragula.css">
 	<style>
 		body {
 			margin: 0px;
 		}
-		.contents-1 {
-			width: 750px;
-			border: solid 1px salmon;
-			margin: 0 auto;
-		}
-		.content {
-			width: 100%;
-			display: block;
-			cursor: grab;
-		}
-		.btn-mask-container {
-			position: absolute;
-			height: 100%;
-			width: 100%;
-			background-color: yellow;
-		}
-		.btn {
-			cursor: grabbing;
-		}
-		.btn-1 {
-			/* position: absolute;
-			top: 100px;
-			left: 20px; */
-			font-size: 40px;
-		}
-		.btn-2 {
-			/* position: absolute;
-			top: 100px;
-			left: 290px; */
-			font-size: 40px;
-		}
 	</style>
 </head>
 <body>
-	<div id="the-current-page" style="position:absolute;">
-	</div>
+	<div id="the-current-page" style="position:absolute; float: left;"></div>
 	<!-- <div id="all-contents-id" style="position: absolute; display: none;">
 		<div id="contents-1-id" class="contents-1">
 			<img class="content" src="./src/img/peak.png" alt="">
@@ -98,90 +65,47 @@
 
 		const ajaxConfig = {
 			pagewidth: 750,
-			activeRule: true,
 			rule: {
 				active: true, // true
 				image: './src/img/rule.png',
-				content: ''
+				content: '',
+				position: {
+					top: 110,
+					left: 220
+				}
 			},
 			title: '东财南京活动一览表',
 			contents: [
 				{
-					type: 'img',
+					type: 'content',
 					image: 'http://img95.699pic.com/photo/50055/5642.jpg_wh300.jpg'
 				},
 				{
-					type: 'img',
+					type: 'content',
 					image: 'https://cdn.pixabay.com/photo/2019/06/25/07/02/light-bulb-4297600__340.jpg'
 				},
 				{
-					type: 'img',
+					type: 'content',
 					image: 'http://static.runoob.com/images/demo/demo4.jpg'
 				},
 				{
-					type: 'img',
+					type: 'content',
 					image: 'http://static.runoob.com/images/demo/demo4.jpg'
 				},
 				{
-					type: 'img',
+					type: 'content',
 					image: 'http://static.runoob.com/images/demo/demo4.jpg'
+				}, 
+				{
+					type: 'passport',
+					backgroundImage: 'xxxx.png',
+					buttonImage: 'xxxxx.png',
+					url: 'http://xxx.xxxx',
+					target: 'web', // web, app
 				}
 			],
 			buttons: [
-				{
-					type: 'button',
-					target: 'web', // web, app
-					action: 'href', // href, passport
-					url: 'http://www.baidu.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
-					width: '',
-					height: '',
-					position: {
-						top: 150,
-						left: 0
-					}
-				},
-				{
-					type: 'button',
-					target: 'web', // self, app
-					action: 'passport', // href, passport
-					url: 'http://www.baidu.com',
-					image: './src/img/rank.png',
-					width: '',
-					height: '',
-					position: {
-						top: 300,
-						left: 200,
-					}
-				},
-				{
-					type: 'button',
-					action: 'href',
-					target: 'app', // self, app
-					url: 'some-scheme.xx//',
-					downloadUrl: 'http://downloadurl.xx.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
-					width: '',
-					height: '',
-					position: {
-						top: 500,
-						left: 400
-					}
-				},
-				{
-					type: 'button',
-					action: 'passport',
-					target: 'app', // self, app
-					url: 'some-scheme.xx//',
-					downloadUrl: 'http://downloadurl.xx.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
-					width: '',
-					height: '',
-					position: {
-						top: 600,
-						left: 400
-					}
-				}
+				
 			],
 			topBanner: [
 				{
@@ -217,8 +141,52 @@
 		};
 		setTimeout(function() {
 			pipe.init(ajaxConfig);
-			pipe.renderDom(750, false);
+			pipe.renderDom(600, false);
+			pipe.storage.listener(function (key, value) {
+				console.log(key, value);
+			});
 		}, 10);
+		setTimeout(function() {
+			pipe.storage.save('buttons', [
+				{
+					type: 'button',
+					target: 'web', // web, app
+					action: 'href', // href
+					url: 'http://www.baidu.com',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					code: 'codeNi',
+					position: {
+						top: 150,
+						left: 0
+					}
+				},
+				{
+					type: 'button',
+					target: 'web', // web, app
+					action: 'href', // href
+					url: 'http://www.baidu.com',
+					image: './src/img/rank.png',
+					code: 'codeNi',
+					position: {
+						top: 300,
+						left: 200,
+					}
+				},
+				{
+					type: 'button',
+					action: 'href',
+					target: 'app', // self, app
+					// https://marketing.eastmoney.com/html/transfer/html/go_download.html?url=http%3A%2F%2Facttg.eastmoney.com%2Fpub%2Fxxlout_dfcfappwap_random_0000171a
+					url: 'some-scheme.xx//',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					code: 'codeNi',
+					position: {
+						top: 500,
+						left: 600
+					}
+				}
+			], 'configer');
+		}, 3000)
 
 
 		// 模拟配置平台消息		
@@ -243,7 +211,7 @@
 		// 	], 'configer');
 		// }, 3000);
 		// // 模拟配置平台监听消息
-		// pipe.storage.listener(function(key, value) {
+		// pipe.storage.listener(function (key, value) {
 		// 	console.log(key, value);
 		// });
 	</script>

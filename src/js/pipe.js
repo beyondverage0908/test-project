@@ -41,18 +41,40 @@
 			}
 		}
 	}
+
+	function IsPC() {
+		var userAgentInfo = navigator.userAgent;
+		var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+		var flag = true;
+		for (var v = 0; v < Agents.length; v++) {
+			if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
+		}
+		return flag; 
+	} 
 	
 	function addScript(path) {
-		$('<script>', {
-			src: path
-		}).appendTo('body');
+		// refrence to https://www.bennadel.com/blog/3454-jquery-s-append-methods-intercept-script-tag-insertion-and-circumvent-load-handlers.htm
+		return new Promise((resolve, reject) => {
+			var scriptElement = document.createElement("script");
+			scriptElement.onload = function () {
+				resolve();
+			};
+			scriptElement.setAttribute("type", "text/javascript");
+			scriptElement.src = path;
+			document.body.appendChild(scriptElement);	
+		})
 	}
 
 	function addCss(path) {
-		$('<link>', {
-			rel: 'stylesheet',
-			href: path
-		}).appendTo('head');
+		return new Promise((resolve, reject) => {
+			var scriptElement = document.createElement("link");
+			scriptElement.onload = function () {
+				resolve();
+			};
+			scriptElement.setAttribute("rel", "stylesheet");
+			scriptElement.href = path;
+			document.head.appendChild(scriptElement);
+		})
 	}
 
 	function postPassport(loginName, verifyCode) {
@@ -128,27 +150,29 @@
 	}
 
 	function createEl(el) {
-		if (el && el.active) {
+		if (el && el.type === 'rule' && el.active) {
 			const css = {
-				top: 0,
-				right: 20,
+				top: el.position.top * _ratio + 'px',
+				left: el.position.left * _ratio + 'px',
 				position: 'absolute',
-				zIndex: 10,
-				width: 42
+				zIndex: 10
 			};
+			const props = {
+				src: el.image,
+				id: 'the-rule-entry',
+				'el-type': 'el-rule'
+			}
 			if (_is_preview) {
 				css.position = 'fixed';
+				props.click = () => {
+					alert('跳转到规则页面');
+				}
 			} else {
 				css.position = 'absolute';
 			}
-			const img = $('<img>', {
-				src: el.image,
-				click: () => {
-					alert('跳转到规则页面');
-				}
-			}).css(css)
+			const img = $('<img>', props).css(css)
 			return img;
-		} else if (el && el.type && el.type === 'img') {
+		} else if (el && el.type && (el.type === 'content' || el.type === 'passport'))  {
 			const props = {
 				src: el.image
 			}
@@ -185,10 +209,32 @@
 					}
 				}
 			} else {
-				props.class = el.__name
+				props.class = el.__name;
+				props['el-type'] = 'el-button';
 			}
 			const a = $('<a>', props).css(css);
-			const button = $('<img>', { src: el.image });
+			const buttonProps = {};
+			// 计算出按钮图片适配后的长宽
+			setTimeout(function () {
+				const btnWidth = button.width();
+				button.css({
+					width: btnWidth * _ratio
+				})
+			}, 50)
+			if (!_is_preview) {
+				buttonProps.onload = () => {
+					// 计算出按钮图片适配后的长宽
+					setTimeout(function() {
+						const btnWidth = button.width();
+						button.css({
+							width: btnWidth * _ratio
+						})
+					}, 50)
+				}
+			}
+			const button = $('<img>', { 
+				src: el.image,
+			});
 			button.appendTo(a);
 			return a;
 		} else if (el && el.type && el.type === 'top-banner') {
@@ -223,6 +269,7 @@
 			$('<div>', {
 				id: 'the-rule'
 			}).appendTo('#the-current-page');
+			obj.type = 'rule';
 			const el = createEl(obj);
 			el.appendTo('#the-rule');
 		} else if (_key === 'share') {
@@ -330,18 +377,33 @@
 		setTopContainer();
 
 		if (configuration.hasOwnProperty('topBanner') || configuration.hasOwnProperty('bottomBanner')) {
-			addScript('./src/libs/swiper/swiper.animate1.0.3.min.js');
-			addScript('./src/libs/swiper/swiper.js');
-			addCss('./src/libs/swiper/animate.min.css');
-			addCss('./src/libs/swiper/swiper.css');
+			// addScript('./src/libs/swiper/swiper.animate1.0.3.min.js');
+			// addScript('./src/libs/swiper/swiper.js');
+			// addCss('./src/libs/swiper/animate.min.css');
 
-			setupSwiper();
+			// Promise.all([addCss('../../assets/activityAssets/libs/swiper/swiper.css'), addScript('../../assets/activityAssets/libs/swiper/swiper.js')]).then(_ => {
+			// 	setupSwiper();
+			// });
+
+			Promise.all([addCss('./src/libs/swiper/swiper.css'), addScript('./src/libs/swiper/swiper.js')]).then(_ => {
+				setupSwiper();
+			});
 		}
-
 		// 配置平台
 		if (!_is_preview) {
-			addScript('./src/js/dragula.js');
-			addScript('./src/js/displace.js');
+			// Promise.all([addCss('../../assets/activityAssets/css/dragula.css'), addScript('../../assets/activityAssets/js/dragula.js')]).then(_ => {
+			// 	contentsDisplace();
+			// })
+			// addScript('../../assets/activityAssets/js/displace.js').then(_ => {
+			// 	buttonsDisplace();
+			// });
+
+			Promise.all([addCss('./src/css/dragula.css'), addScript('./src/js/dragula.js')]).then(_ => {
+				contentsDisplace();
+			})
+			addScript('./src/js/displace.js').then(_ => {
+				buttonsDisplace();
+			});
 		}
 		for (let k in configuration) {
 			renderNode(k, configuration[k])
@@ -381,41 +443,41 @@
 
 	function buttonsDisplace() {
 		const displace = window.displacejs;
+		const displaceElements = [];
 		if (_storage && _storage.all() && _storage.get('buttons') && _storage.get('buttons').length) {
-			const btns = [];
 			for (let i = 0; i < _storage.get('buttons').length; i++) {
-				btns.push('.btn__' + i);
+				displaceElements.push('.btn__' + i);
 			}
-			btns.map(cls => {
-				const el = document.querySelector(cls);
-				displace(el, {
-					onMouseDown: function () {
-						// console.log(el.offsetLeft, el.offsetTop);
-					},
-					onMouseUp: function () {
-						// 定位矫正
-						if ($(el).offset().left < 0) {
-							$(el).css({
-								left: 0
-							})
-						} else if ($(el).offset().left + $(el).width() > _pagewidth) {
-							$(el).css({
-								left: _pagewidth - el.clientWidth
-							})
-						}
+		}
+		if (_storage && _storage.all() && _storage.get('rule') && _storage.get('rule')['active']) {
+			displaceElements.push('#the-rule-entry');
+		}
+		displaceElements.map(cls => {
+			const el = document.querySelector(cls);
+			displace(el, {
+				onMouseUp: function () {
+					console.log();
+					const elType = $(el).attr('el-type');
+					// 定位矫正
+					if (el.offsetLeft < 0) {
+						$(el).css({ left: 0 })
+					} else if (el.offsetLeft + $(el).width() > _pagewidth) {
+						$(el).css({ left: _pagewidth - el.clientWidth })
+					}
+					if (elType === 'el-button') {
 						if (_storage.all() && _storage.get('topBanner') && _storage.get('topBanner').length) {
 							const topHeight = $('#the-top-banners').height();
-							if ($(el).offset().top < topHeight) {
+							if (el.offsetTop < topHeight) {
 								$(el).css({
 									top: topHeight
-								})	
+								})
 							}
 						}
 						if (_storage.all() && _storage.get('bottomBanner') && _storage.get('bottomBanner')) {
 							const bottomHeight = $('#the-bottom-banners').height();
 							const contentHeight = $('#the-current-page').height();
 							const maxOffsetTop = contentHeight - bottomHeight - el.clientHeight;
-							if ($(el).offset().top > maxOffsetTop) {
+							if (el.offsetTop > maxOffsetTop) {
 								$(el).css({
 									top: maxOffsetTop
 								})
@@ -430,15 +492,32 @@
 
 							const btn = _storage.get('buttons')[btnIndex];
 							btn.position = {
-								top: el.offsetTop,
-								left: el.offsetLeft
+								top: el.offsetTop / _ratio,
+								left: el.offsetLeft / _ratio
 							}
 							pageEmit('buttons', _storage.get('buttons'));
 						}
-					}
-				})
-			});
-		}
+					} else if (elType === 'el-rule') {
+						if (el.offsetTop < 0) {
+							$(el).css({ top: 0 })
+						} 
+						const contentHeight = $('#the-current-page').height();
+						const maxOffsetTop = contentHeight - el.clientHeight;
+						if (el.offsetTop > maxOffsetTop) {
+							$(el).css({
+								top: maxOffsetTop
+							})
+						}
+						const rule = _storage.get('rule');
+						rule.position = {
+							top: el.offsetTop / _ratio,
+							left: el.offsetLeft / _ratio
+						}
+						pageEmit('rule', rule);
+					}	
+				}
+			})
+		});
 	}
 	function contentsDisplace() {
 		const dragulable = window.dragula;
@@ -455,18 +534,19 @@
 					const newContents = [];
 					const contents = $('#the-contents').children('img');
 					let isSame = true;
+					const oldContents = _storage.get('contents');
 					for (let i = 0; i < contents.length; i++) {
 						const imgIndex = $(contents[i]).attr('data-index');
-						newContents.push(_storage.get('contents')[imgIndex]);
+						$(contents[i]).attr('data-index', i);
+						newContents.push(oldContents[imgIndex]);
 
-						if (_storage.get('contents')[i].image !== _storage.get('contents')[imgIndex].image) {
+						if (oldContents[i].image !== oldContents[imgIndex].image) {
 							isSame = false;
 						}
 					}
 					// 对比原有数据
 					if (!isSame) {
 						pageEmit('contents', newContents);
-						renderNode('contents', newContents); // 更新element img标签的data-index属性
 					}
 				}
 			}
@@ -521,6 +601,9 @@
 		// 监听配置平台的数据发生了改变，配置平台通过对storage对象的save(key, value)方法进行变更数据
 		_storage.monitor(function (key, value) {
 			renderNode(key, value);
+			if (key === 'buttons' || key === 'rule') {
+				buttonsDisplace();
+			}
 		})
 	}
 	factory['renderDom'] = render;
