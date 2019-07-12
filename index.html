@@ -12,63 +12,21 @@
 	</style>
 </head>
 <body>
-	<div id="the-current-page" style="position:absolute; float: left;"></div>
-	<!-- <div id="all-contents-id" style="position: absolute; display: none;">
-		<div id="contents-1-id" class="contents-1">
-			<img class="content" src="./src/img/peak.png" alt="">
-			<img class="content" src="./src/img/rank.png" alt="">
-			<img class="content" src="./src/img/peak.png" alt="">
-			<img class="content" src="./src/img/rank.png" alt="">
-		</div>
-		<div>
-			<button class="btn btn-1">button1</button>
-			<button class="btn btn-2">button2</button>
-		</div>
-	</div> -->
+	<div id="the-current-page" style="position:absolute;">
+	</div>
 	
 	<script src="./src/libs/jquery-1.9.1.min.js"></script>
-	<!-- <script src="./src/js/dragula.js"></!-->
-	<!-- <script src="./src/js/displace.js"></script> --> 
 	<script src="./src/js/pipe.js"></script>
-	<!-- <script src="./src/libs/swiper/swiper.animate1.0.3.min.js"></script> -->
-	<!-- <script src="./src/libs/swiper/swiper.js"></script> -->
 
 	<script>
 		const pipe = window.pipe;
-
-		// const drake = dragula([document.querySelector('#contents-1-id')], {
-		// 	moves: function (el, source, handle, sibling) {
-		// 		// console.log(el, source, handle, sibling);	
-		// 		// console.log(el.offsetTop); 
-		// 		return true; // elements are always draggable by default
-		// 	},
-		// 	accepts: function (el, target, source, sibling) {
-		// 		// console.log(el, target, source, sibling);
-		// 		// console.log(el.offsetTop);
-		// 		return true; // elements can be dropped in any of the `containers` by default
-		// 	},
-		// });
-
-		// const displace = window.displacejs;
-		// ['.btn-1', '.btn-2'].map(cls => {
-		// 	const el = document.querySelector(cls);
-		// 	displace(el, {
-		// 		onMouseDown: function () {
-		// 			// console.log(el.offsetLeft, el.offsetTop);
-		// 		},
-		// 		onMouseUp: function () {
-		// 			console.log(el.offsetLeft, el.offsetTop);
-		// 			pipe.pageEmit('contents', el.offsetLeft);
-		// 		}
-		// 	})
-		// });
-
 		const ajaxConfig = {
 			pagewidth: 750,
 			rule: {
 				active: true, // true
 				image: './src/img/rule.png',
 				content: '',
+				anchor: 'top', // top, bottom, left, right, auto
 				position: {
 					top: 110,
 					left: 220
@@ -98,20 +56,46 @@
 				}, 
 				{
 					type: 'passport',
-					backgroundImage: 'xxxx.png',
-					buttonImage: 'xxxxx.png',
+					// backgroundImage: 'http://seopic.699pic.com/photo/50043/9886.jpg_wh1200.jpg',
+					backgroundImage: 'http://n4-q.mafengwo.net/s11/M00/92/FA/wKgBEFqX00eAY8KJAAZhT2mNgTo64.jpeg?imageMogr2%2Fthumbnail%2F%21320x170r%2Fgravity%2FCenter%2Fcrop%2F%21320x170%2Fquality%2F100',
+					buttonImage: 'https://gss0.bdstatic.com/5bVWsj_p_tVS5dKfpU_Y_D3/res/r/image/2017-09-26/352f1d243122cf52462a2e6cdcb5ed6d.png',
 					url: 'http://xxx.xxxx',
 					target: 'web', // web, app
 				}
 			],
 			buttons: [
-				
+				{
+					type: 'button',
+					target: 'web', // web, app
+					action: 'href', // href
+					url: 'http://www.baidu.com',
+					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					code: 'codeNi',
+					anchor: 'top', // top, bottom, left, right, auto
+					position: {
+						top: 150,
+						left: 0
+					}
+				},
+				{
+					type: 'button',
+					target: 'web', // web, app
+					action: 'href', // href
+					url: 'http://www.baidu.com',
+					image: './src/img/rank.png',
+					code: 'codeNi',
+					anchor: 'top', // top, bottom, left, right, auto
+					position: {
+						top: 300,
+						left: 200,
+					}
+				}
 			],
 			topBanner: [
 				{
-					image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
+					image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
 					url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-					action: 'href', // app, href, passport
+					action: 'app', // app, href, passport
 				},
 				{
 					image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
@@ -140,10 +124,13 @@
 			}
 		};
 		setTimeout(function() {
-			pipe.init(ajaxConfig);
-			pipe.renderDom(600, false);
+			pipe.init(ajaxConfig, false);
+			pipe.renderDom(600);
 			pipe.storage.listener(function (key, value) {
 				console.log(key, value);
+			});
+			pipe.layer.toast('这是一个非常好看的toast,这是一个非常好看的toast,这是一个非常好看的toast', function() {
+				console.log('xxxx');
 			});
 		}, 10);
 		setTimeout(function() {
@@ -155,6 +142,7 @@
 					url: 'http://www.baidu.com',
 					image: 'http://127.0.0.1:9000/src/img/rank.png',
 					code: 'codeNi',
+					anchor: 'left', // top, bottom, left, right, auto
 					position: {
 						top: 150,
 						left: 0
@@ -182,11 +170,21 @@
 					code: 'codeNi',
 					position: {
 						top: 500,
-						left: 600
+						left: 200
 					}
 				}
 			], 'configer');
-		}, 3000)
+			pipe.storage.save('topBanner', [
+			{
+				image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
+				url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+				action: 'href', // app, href, passport
+			}, {
+					image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
+					url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+					action: 'app', // app, href, passport
+			}], 'configer');
+		}, 5000)
 
 
 		// 模拟配置平台消息		
@@ -214,6 +212,10 @@
 		// pipe.storage.listener(function (key, value) {
 		// 	console.log(key, value);
 		// });
+
+		$(document).on('click', '#the-current-page #the-buttons a', function(e) {
+			console.log($(this).attr('id'));
+		})
 	</script>
 </body>
 </html>

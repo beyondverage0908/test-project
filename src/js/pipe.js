@@ -1,6 +1,6 @@
-(function(root, factory) {
+(function (root, factory) {
 	root['pipe'] = factory();
-})(this, function() {
+})(this, function () {
 
 	let _is_preview = false;
 	let _pagewidth = 750;
@@ -12,141 +12,181 @@
 		this.__listener = null;
 		this.__monitor = null;
 
-		this.all = function() {
+		this.all = function () {
 			return this.__config || {};
 		}
-		this.get = function(key) {
+		this.get = function (key) {
 			return this.__config[key];
 		}
-		this.save = function(key, value, origin) {
-			this.__config[key] = value;
+		this.check = function (key, externalButtons) {
+			if ('buttons' === key) {
+				const originButtons = this.get(key);
+				if (Array.isArray(externalButtons) && Array.isArray(originButtons)) {
+					// 遍历外部数据
+					externalButtons.forEach(item => {
+						const pickedBtn = originButtons.find(btn => item.image === btn.image);
+						if (pickedBtn) {
+							item.position = pickedBtn.position;
+						}
+					})
+				}
+			}
+		}
+		this.save = function (key, value, origin) {
+			if (origin === 'configer') {
+				this.check(key, value);
+			}
 
+			this.__config[key] = value;
 			if (this.__listener && origin === 'drager') {
+				console.log('internal change', key, value);
 				this.__listener(key, value);
 			}
 			if (this.__monitor && origin === 'configer') {
+				console.log('external chang', key, value);
 				this.__monitor(key, value);
 			}
 		}
 		// 配置平台监听
-		this.listener = function(cb) {
+		this.listener = function (cb) {
 			if (cb && typeof cb === 'function') {
 				this.__listener = cb;
 			}
 		}
 		// 拖拽平台监听
-		this.monitor = function(cb) {
+		this.monitor = function (cb) {
 			if (cb && typeof cb === 'function') {
 				this.__monitor = cb;
 			}
 		}
 	}
 
-	function IsPC() {
-		var userAgentInfo = navigator.userAgent;
-		var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
-		var flag = true;
-		for (var v = 0; v < Agents.length; v++) {
-			if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
-		}
-		return flag; 
-	} 
-	
+	function getQueryString(name) {
+		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+		var r = window.location.search.substr(1).match(reg);
+		if (r != null) return unescape(r[2]); return null;
+	}
+
 	function addScript(path) {
 		// refrence to https://www.bennadel.com/blog/3454-jquery-s-append-methods-intercept-script-tag-insertion-and-circumvent-load-handlers.htm
 		return new Promise((resolve, reject) => {
-			var scriptElement = document.createElement("script");
-			scriptElement.onload = function () {
+			var isExist = false;
+			var scripts = $('script');
+			for (var i = 0; i < scripts.length; i++) {
+				var src = $(scripts[i]).attr('src');
+				if (src == path) {
+					isExist = true;
+					break;
+				}
+			}
+			if (!isExist) {
+				var scriptElement = document.createElement("script");
+				scriptElement.onload = function () {
+					resolve();
+				};
+				scriptElement.setAttribute("type", "text/javascript");
+				scriptElement.src = path;
+				document.body.appendChild(scriptElement);
+			} else {
 				resolve();
-			};
-			scriptElement.setAttribute("type", "text/javascript");
-			scriptElement.src = path;
-			document.body.appendChild(scriptElement);	
+			}
 		})
 	}
 
 	function addCss(path) {
 		return new Promise((resolve, reject) => {
-			var scriptElement = document.createElement("link");
-			scriptElement.onload = function () {
-				resolve();
-			};
-			scriptElement.setAttribute("rel", "stylesheet");
-			scriptElement.href = path;
-			document.head.appendChild(scriptElement);
-		})
-	}
-
-	function postPassport(loginName, verifyCode) {
-		// 进行ajax请求
-		return new Promise((resolve, reject) => {
-			if (!loginName || !verifyCode) {
-				alert('未输入电话号码或验证码')
-				reject();
-				return;
+			var isExist = false;
+			var links = $('link');
+			for (var i = 0; i < links.length; i++) {
+				var src = $(links[i]).attr('href');
+				if (src == path) {
+					isExist = true;
+					break;
+				}
 			}
-			resolve();
+			if (!isExist) {
+				var scriptElement = document.createElement("link");
+				scriptElement.onload = function () {
+					resolve();
+				};
+				scriptElement.setAttribute("rel", "stylesheet");
+				scriptElement.href = path;
+				document.head.appendChild(scriptElement);
+			} else {
+				resolve();
+			}
 		})
 	}
 
-	function renderPassport(target, nodeEl) {
-		let htmlTemplate = `
-			<div style="position: fixed; top: 0; left: 0; width: ${_pagewidth}px; height: 100%; z-index: 100; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center;">
-				<div style="position: absolute; top: ${_ratio * 200}px; background-color: #F8F9FB; padding: ${_ratio * 10}px ${_ratio * 20}px ${_ratio * 20}px ${_ratio * 20}px;">
-					<div style="border-bottom: solid 1px #F4F5F7; padding: ${_ratio * 30}px 0px;">
-						<span style="font-size: ${_ratio * 30}px; color: #333333;">+86</span>
-						<input id="mobile-number-id" type="text" placeholder="请输入手机号码" style="border-style: none; box-sizing: border-box; outline: none; background-color: #F8F9FB; padding: ${_ratio * 10}px 5px; font-size: ${_ratio * 30}px; width: 85%; color: #333333;" />
-					</div>
-					<div style="border-bottom: solid 1px #F4F5F7; padding: ${_ratio * 30}px 0px;">
-						<span style="font-size: ${_ratio * 28}px; color: #333333;">验证码</span>
-						<input id="mobile-verifycode-id" type="password" placeholder="请输入验证码" style="border-style: none; box-sizing: border-box; outline: none; background-color: #F8F9FB; padding: ${_ratio * 10}px ${_ratio * 5}px; border-right: solid 1px #F4F5F7; font-size: ${_ratio * 30}px; color: #333333;">
-						<span id="btn-verifycode-id" style="color: #F9C1A4; font-size: ${_ratio * 28}px; display: inline-block; padding: 0 ${_ratio * 10}px; text-align: center; cursor: pointer;">发送验证码</span>
-					</div>
-					<div style="font-size: ${_ratio * 28}px; color: #C1C1C3; text-align: center; margin: ${_ratio * 35}px auto ${_ratio * 40}px auto;">未注册的手机号码验证后将自动创建东方财富账号</div>
-					<div id="passport-login-container" style="text-align: center;">
+	function getPassportHtml(nodeEl) {
+
+		// 缺省设置颜色
+		if (!nodeEl.color) {
+			const defaultColor = {
+				labelColor: '#333333',
+				inputColor: '#F9C1A4',
+				inputBackgroundColor: 'rgba(0, 0, 0, 0.2)',
+				verifyCodeLabelColor: '#F9C1A4',
+				tipColor: '#C1C1C3'
+			}
+			nodeEl['color'] = defaultColor;
+		}
+
+		function renderPassport() {
+			const passportHtml = `
+				<div id="passport-mobile-code-container" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+					<div style="position: absolute; padding: ${10 * _ratio}px ${20 * _ratio}px ${20 * _ratio}px ${_ratio * 20}px;">
+						<div style="padding: ${30 * _ratio}px 0px;">
+							<span style="font-size: ${_ratio * 30}px; color: ${nodeEl.color.labelColor};">+86</span>
+							<input id="mobile-number-id" type="text" placeholder="请输入手机号码"
+								style="border-style: none; box-sizing: border-box; outline: none; background-color: ${nodeEl.color.inputBackgroundColor}; padding: ${10 * _ratio}px ${5 * _ratio}px; font-size: ${30 * _ratio}px; width: 85%; color: ${nodeEl.color.inputColor};" />
+						</div>
+						<div style="padding: ${30 * _ratio}px 0px;">
+							<span style="font-size: ${28 * _ratio}px; color: ${nodeEl.color.labelColor};">验证码</span>
+							<input id="mobile-verifycode-id" type="password" placeholder="请输入验证码"
+								style="border-style: none; box-sizing: border-box; outline: none; background-color: rgba(0, 0, 0, 0.2); padding: ${10 * _ratio}px ${5 * _ratio}px; font-size: ${_ratio * 30}px; color: #333333;">
+							<span id="btn-verifycode-id"
+								style="color: ${nodeEl.color.verifyCodeLabelColor}; font-size: ${_ratio * 28}px; display: inline-block; padding: 0 ${_ratio * 10}px; text-align: center; cursor: pointer;">发送验证码</span>
+						</div>
+                        <div id="captcha-picture"></div>
+						<div style="font-size: ${_ratio * 28}px; color: ${nodeEl.color.tipColor}; text-align: center; margin: ${_ratio * 35}px auto ${_ratio * 40}px auto;">
+							未注册的手机号码验证后将自动创建东方财富账号</div>
+						<div id="passport-login-container" style="text-align: center; height: ${_ratio * 80}px;">
+							<img style="height: 100%;" src="${nodeEl.buttonImage}" alt="">
+						</div>
 					</div>
 				</div>
-			</div>
-		`;
-		$($.parseHTML(htmlTemplate)).appendTo('#the-current-page');
-
-		// 验证码获取
-		$(document).on('click', '#btn-verifycode-id', function() {
-			alert('获取验证码');
-		});
-
-		const passport = _storage.get('passport');
-		if (passport && passport.image) {
-			$('<img>', {
-				src: passport.image,
-				click: () => {
-					const loginMobile = $('#mobile-number-id').val();
-					const loginVerifyCode = $('#mobile-verifycode-id').val();
-					postPassport(loginMobile, loginVerifyCode).then(res => {
-						if (target === 'web') {
-							window.location.href = nodeEl.url;
-						} else if (target === 'app') {
-							window.location.href = `sechem.url?url=${nodeEl.url}`;
-						}
-					}).catch(err => {})
-				}
-			}).appendTo('#passport-login-container');
-		} else {
-			const defualtLoginBtn = `<div id="passport-default-login" style="color: #ffffff; background-color: #FFA17C; border-radius: 5px; text-align: center; font-size: ${_ratio * 30}px; height: ${_ratio * 80}px; line-height: ${80 * _ratio}px; cursor: pointer;">登录</div>`; 
-			$($.parseHTML(defualtLoginBtn)).appendTo('#passport-login-container');
-
-			$(document).on('click', '#passport-default-login', function() {
-				const loginMobile = $('#mobile-number-id').val();
-				const loginVerifyCode = $('#mobile-verifycode-id').val();
-				postPassport(loginMobile, loginVerifyCode).then(res => {
-					if (target === 'web') {
-						window.location.href = nodeEl.url;
-					} else if (target === 'app') {
-						window.location.href = `sechem.url?url=${nodeEl.url}`;
-					}
-				}).catch(err => {})
-			})
+			`;
+			return $($.parseHTML(passportHtml));
 		}
+
+		const container = $('<div>', {
+			id: 'passport-container',
+			'data-index': nodeEl.__name
+		}).css({
+			width: '100%',
+			minHeight: '300px',
+			backgroundColor: '#FFF',
+		});
+		const imgProps = {
+			src: nodeEl.backgroundImage,
+			width: '100%'
+		}
+		const backgroundImage = $('<img>', imgProps).css({
+			position: 'absolute'
+		});
+		backgroundImage[0].addEventListener('load', function () {
+			const container = $('#passport-mobile-code-container');
+			if (container && container.length) {
+				container.remove();
+			}
+			const backgroundImageHeight = backgroundImage.height();
+			const passport = renderPassport(backgroundImageHeight);
+			passport.appendTo($('#passport-container').css({ height: backgroundImageHeight }));
+		}, false);
+		backgroundImage.appendTo(container);
+
+		return container;
 	}
 
 	function createEl(el) {
@@ -155,98 +195,125 @@
 				top: el.position.top * _ratio + 'px',
 				left: el.position.left * _ratio + 'px',
 				position: 'absolute',
-				zIndex: 10
+				zIndex: 10,
+				cursor: 'pointer',
 			};
-			const props = {
-				src: el.image,
-				id: 'the-rule-entry',
-				'el-type': 'el-rule'
-			}
 			if (_is_preview) {
 				css.position = 'fixed';
-				props.click = () => {
-					alert('跳转到规则页面');
-				}
 			} else {
 				css.position = 'absolute';
 			}
-			const img = $('<img>', props).css(css)
-			return img;
-		} else if (el && el.type && (el.type === 'content' || el.type === 'passport'))  {
-			const props = {
-				src: el.image
+
+			const imgProps = {
+				src: el.image,
 			}
-			if (!_is_preview) {
-				props['data-index'] = el.__name;
+			const img = $('<img>', imgProps);
+			img[0].addEventListener('load', function () {
+				img.css({ width: img.width() * _ratio });
+			}, false);
+			const a = $('<a>', {
+				id: 'the-rule-entry',
+				'el-type': 'el-rule'
+			}).css(css);
+			img.appendTo(a);
+			return a;
+		} else if (el && el.type && (el.type === 'content' || el.type === 'passport')) {
+			if (el.type === 'content') {
+				const props = {
+					src: el.image
+				}
+				if (!_is_preview) {
+					props['data-index'] = el.__name;
+				}
+				const img = $('<img>', props).css({
+					width: '100%',
+					cursor: 'grabbing',
+					display: 'block'
+				})
+				return img;
+			} else if (el.type === 'passport') {
+				const passportHtml = getPassportHtml(el);
+				return passportHtml;
 			}
-			const img = $('<img>', props).css({
-				width: '100%',
-				cursor: 'grabbing'
-			})
-			return img;
 		} else if (el && el.type && el.type === 'button') {
+			if (!el.image) {
+				return;
+			}
 			const css = {
 				cursor: 'pointer',
 				position: 'absolute',
-				top: el.position.top * _ratio + 'px',
-				left: el.position.left * _ratio + 'px'
 			};
 			const props = {};
-			if (_is_preview) {
-				props.click = () => {
-					// 四种组合
-					if (el.target === 'web' && el.action === 'href') {
-						// 直接跳转
-						window.location.href = el.url;
-					} else if (el.target === 'web' && el.action === 'passport') {
-						// 登录信息收集框后进行跳转
-						renderPassport('web', el);
-					} else if (el.target === 'app' && el.action === 'href') {
-						// 在app中打开相应的url地址 -- 在target为app时候，需要提供download url
-					} else if (el.target === 'app' && el.action === 'passport') {
-						// 登录信息收集页面点击登录后 -- 打开app并进行再app中打开相应的页面
-						renderPassport('app', el);
+			// debugger;
+			if (!_is_preview) {
+				css.top = el.position.top * _ratio + 'px',
+					css.left = el.position.left * _ratio + 'px'
+				props.class = el.__name;
+				props['el-type'] = 'el-button';
+				if (['top', 'bottom'].indexOf(el.anchor) > -1) {
+					if ('top' === el.anchor) {
+						css.top = el.position.top * _ratio + 'px';
+						css.left = el.position.left * _ratio + 'px';
+					} else if ('bottom' === el.anchor) {
+						css.bottom = el.position.bottom * _ratio + 'px';
+						css.left = el.position.left * _ratio + 'px'
 					}
 				}
 			} else {
-				props.class = el.__name;
-				props['el-type'] = 'el-button';
-			}
-			const a = $('<a>', props).css(css);
-			const buttonProps = {};
-			// 计算出按钮图片适配后的长宽
-			setTimeout(function () {
-				const btnWidth = button.width();
-				button.css({
-					width: btnWidth * _ratio
-				})
-			}, 50)
-			if (!_is_preview) {
-				buttonProps.onload = () => {
-					// 计算出按钮图片适配后的长宽
-					setTimeout(function() {
-						const btnWidth = button.width();
-						button.css({
-							width: btnWidth * _ratio
-						})
-					}, 50)
+				if (el.anchor === 'top') {
+					css.position = 'fixed';
+					css.top = el.position.top * _ratio + 'px';
+					css.left = el.position.left * _ratio + 'px';
+				} else if (el.anchor === 'bottom') {
+					css.position = 'fixed';
+					css.bottom = el.position.bottom * _ratio + 'px';
+					css.left = el.position.left * _ratio + 'px'
+				} else {
+					css.top = el.position.top * _ratio + 'px',
+						css.left = el.position.left * _ratio + 'px'
 				}
 			}
-			const button = $('<img>', { 
+			props.id = el.__name;
+			const a = $('<a>', props).css(css);
+			const buttonProps = {
 				src: el.image,
-			});
+			};
+			const button = $('<img>', buttonProps);
+			button[0].addEventListener('load', function () {
+				button.css({ width: button.width() * _ratio })
+			}, false)
 			button.appendTo(a);
+			if (!_is_preview && ['top', 'bottom'].indexOf(el.anchor) > -1) {
+				// 生成大头针
+				const pin = $('<div>').css({
+					width: '16px',
+					height: '16px',
+					position: 'absolute',
+					top: 0,
+					right: 0,
+					background: 'url(../../assets/activityAssets/img/fixed-pin.png) no-repeat 0 0',
+					backgroundSize: '16px 16px'
+				})
+				pin.appendTo(a);
+			}
 			return a;
 		} else if (el && el.type && el.type === 'top-banner') {
-			const css = {};
-			if (el.action) {
-				css.cursor = 'pointer';
+			const shareKey = getQueryString('share');
+			if (!_is_preview || shareKey === '1') {
+				const css = {};
+				if (el.action) {
+					css.cursor = 'pointer';
+				}
+				const img = $('<img>', {
+					src: el.image,
+					class: 'swiper-slide',
+					id: el.__name
+				}).css(css);
+				img[0].addEventListener('load', function () {
+					topBannerViewCorrect();
+				}, false);
+				return img;
 			}
-			const img = $('<img>', {
-				src: el.image,
-				class: 'swiper-slide'
-			}).css(css);
-			return img;
 		} else if (el && el.type && el.type === 'bottom-banner') {
 			const css = {};
 			if (el.action) {
@@ -254,8 +321,12 @@
 			}
 			const img = $('<img>', {
 				src: el.image,
-				class: 'swiper-slide'
+				class: 'swiper-slide',
+				id: el.__name
 			}).css(css);
+			img[0].addEventListener('load', function () {
+				bottomBannerViewCorrect();
+			}, false);
 			return img;
 		}
 	}
@@ -265,38 +336,54 @@
 		if (_key === 'title') {
 			document.title = obj;
 		} else if (_key === 'rule') {
-			$('#the-rule').empty();
-			$('<div>', {
-				id: 'the-rule'
-			}).appendTo('#the-current-page');
+			const theRules = $('#the-rule');
+			if (theRules && theRules.length) {
+				theRules.empty();
+			} else {
+				$('<div>', {
+					id: 'the-rule'
+				}).appendTo('#the-current-page');
+			}
 			obj.type = 'rule';
 			const el = createEl(obj);
-			el.appendTo('#the-rule');
-		} else if (_key === 'share') {
-			
+			if (el) {
+				el.appendTo('#the-rule');
+			}
 		} else if (_key === 'contents') {
-	 		$('#the-contents').empty();
-			$('<div>', {
-				id: 'the-contents',
-			}).appendTo('#the-current-page');
+			const theContents = $('#the-contents');
+			if (theContents && theContents.length) {
+				theContents.empty();
+			} else {
+				$('<div>', {
+					id: 'the-contents',
+				}).appendTo('#the-current-page');
+			}
 			for (let k in obj) {
 				const node = obj[k];
-				node.__name = k; 
+				node.__name = k;
 				const el = createEl(node);
 				delete node.__name;
-				el.appendTo('#the-contents');
+				if (el) {
+					el.appendTo('#the-contents');
+				}
 			}
 		} else if (_key === 'buttons') {
-			$('#the-buttons').empty();
-			$('<div>', {
-				id: 'the-buttons'
-			}).appendTo('#the-current-page');
+			const theButtons = $('#the-buttons');
+			if (theButtons && theButtons.length) {
+				theButtons.empty();
+			} else {
+				$('<div>', {
+					id: 'the-buttons'
+				}).appendTo('#the-current-page');
+			}
 			for (let k in obj) {
 				const node = obj[k];
-				node.__name = 'btn__' + k; 
+				node.__name = 'btn__' + k;
 				const el = createEl(node);
 				delete node.__name;
-				el.appendTo('#the-buttons');
+				if (el) {
+					el.appendTo('#the-buttons');
+				}
 			}
 		} else if (_key === 'topBanner') {
 			$('#the-top-banners').remove();
@@ -323,8 +410,12 @@
 			for (let k in obj) {
 				const target = obj[k];
 				target.type = 'top-banner';
+				target.__name = 'topBanner-' + k;
 				const el = createEl(target);
-				el.appendTo('#the-top-banner-wrapper');
+				delete target.__name;
+				if (el) {
+					el.appendTo('#the-top-banner-wrapper');
+				}
 			}
 		} else if (_key === 'bottomBanner') {
 			$('#the-bottom-banners').remove();
@@ -350,8 +441,12 @@
 				for (let i = 0; i < obj.length; i++) {
 					const target = obj[i];
 					target.type = 'bottom-banner';
+					target.__name = 'bottomBanner-' + i;
 					const el = createEl(target);
-					el.appendTo('#the-bottom-banner-wrapper');
+					delete target.__name;
+					if (el) {
+						el.appendTo('#the-bottom-banner-wrapper');
+					}
 				}
 			}
 		}
@@ -368,43 +463,13 @@
 		})
 	}
 
-	function render(pagewidth, isPreview) {
+	function render(pagewidth) {
 		const configuration = _storage.all();
-		_is_preview = isPreview;
 		_pagewidth = pagewidth;
 		_ratio = _pagewidth / (configuration.pagewidth || 750); // 确定页面布局比率
 		setViewPort();
 		setTopContainer();
 
-		if (configuration.hasOwnProperty('topBanner') || configuration.hasOwnProperty('bottomBanner')) {
-			// addScript('./src/libs/swiper/swiper.animate1.0.3.min.js');
-			// addScript('./src/libs/swiper/swiper.js');
-			// addCss('./src/libs/swiper/animate.min.css');
-
-			// Promise.all([addCss('../../assets/activityAssets/libs/swiper/swiper.css'), addScript('../../assets/activityAssets/libs/swiper/swiper.js')]).then(_ => {
-			// 	setupSwiper();
-			// });
-
-			Promise.all([addCss('./src/libs/swiper/swiper.css'), addScript('./src/libs/swiper/swiper.js')]).then(_ => {
-				setupSwiper();
-			});
-		}
-		// 配置平台
-		if (!_is_preview) {
-			// Promise.all([addCss('../../assets/activityAssets/css/dragula.css'), addScript('../../assets/activityAssets/js/dragula.js')]).then(_ => {
-			// 	contentsDisplace();
-			// })
-			// addScript('../../assets/activityAssets/js/displace.js').then(_ => {
-			// 	buttonsDisplace();
-			// });
-
-			Promise.all([addCss('./src/css/dragula.css'), addScript('./src/js/dragula.js')]).then(_ => {
-				contentsDisplace();
-			})
-			addScript('./src/js/displace.js').then(_ => {
-				buttonsDisplace();
-			});
-		}
 		for (let k in configuration) {
 			renderNode(k, configuration[k])
 		}
@@ -434,19 +499,16 @@
 		}
 	}
 
-
-	function getQueryString(name) {
-		var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-		var r = window.location.search.substr(1).match(reg);
-		if (r != null) return unescape(r[2]); return null;
-	}
-
 	function buttonsDisplace() {
 		const displace = window.displacejs;
 		const displaceElements = [];
 		if (_storage && _storage.all() && _storage.get('buttons') && _storage.get('buttons').length) {
-			for (let i = 0; i < _storage.get('buttons').length; i++) {
-				displaceElements.push('.btn__' + i);
+			const btns = _storage.get('buttons');
+			for (let i = 0; i < btns.length; i++) {
+				const btn = btns[i];
+				if (btn && btn.image) {
+					displaceElements.push('.btn__' + i);
+				}
 			}
 		}
 		if (_storage && _storage.all() && _storage.get('rule') && _storage.get('rule')['active']) {
@@ -456,7 +518,6 @@
 			const el = document.querySelector(cls);
 			displace(el, {
 				onMouseUp: function () {
-					console.log();
 					const elType = $(el).attr('el-type');
 					// 定位矫正
 					if (el.offsetLeft < 0) {
@@ -491,16 +552,27 @@
 							const btnIndex = tempList[tempList.length - 1];
 
 							const btn = _storage.get('buttons')[btnIndex];
-							btn.position = {
-								top: el.offsetTop / _ratio,
-								left: el.offsetLeft / _ratio
+							if (btn.anchor === 'bottom') {
+								const offsetBottom = $('#the-current-page').height() - $(el)[0].offsetTop - $(el).children('img').height();
+								$(el).css({
+									bottom: offsetBottom
+								})
+								btn.position = {
+									bottom: offsetBottom / _ratio,
+									left: el.offsetLeft / _ratio
+								}
+							} else {
+								btn.position = {
+									top: el.offsetTop / _ratio,
+									left: el.offsetLeft / _ratio
+								}
 							}
 							pageEmit('buttons', _storage.get('buttons'));
 						}
 					} else if (elType === 'el-rule') {
 						if (el.offsetTop < 0) {
 							$(el).css({ top: 0 })
-						} 
+						}
 						const contentHeight = $('#the-current-page').height();
 						const maxOffsetTop = contentHeight - el.clientHeight;
 						if (el.offsetTop > maxOffsetTop) {
@@ -514,7 +586,7 @@
 							left: el.offsetLeft / _ratio
 						}
 						pageEmit('rule', rule);
-					}	
+					}
 				}
 			})
 		});
@@ -528,11 +600,11 @@
 			accepts: function (el, target, source, sibling) {
 				return true; // elements can be dropped in any of the `containers` by default
 			},
-			release: function(e) { 
+			release: function (e) {
 				// 监听鼠标谈起mouseup事件
 				if (_storage.all() && _storage.get('contents') && _storage.get('contents').length) {
 					const newContents = [];
-					const contents = $('#the-contents').children('img');
+					const contents = $('#the-contents').children();
 					let isSame = true;
 					const oldContents = _storage.get('contents');
 					for (let i = 0; i < contents.length; i++) {
@@ -553,11 +625,11 @@
 		});
 	}
 
-	$(document).ready(function() {
+	$(document).ready(function () {
 		// setupSwiper();
 	})
 
-	window.onload = function() {
+	function topBannerViewCorrect() {
 		// 视图矫正
 		// 1. 计算top banner和bottom banner的高度
 		if (_storage && _storage.all() && _storage.get('topBanner') && _storage.get('topBanner').length) {
@@ -566,21 +638,15 @@
 				'margin-top': topHeight
 			})
 		}
+	}
+
+	function bottomBannerViewCorrect() {
+		// 1. 计算top banner和bottom banner的高度
 		if (_storage && _storage.all() && _storage.get('bottomBanner') && _storage.get('bottomBanner')) {
 			const bottomHeight = $('#the-bottom-banners').height();
 			$('#the-contents').css({
 				'margin-bottom': bottomHeight
 			})
-		}
-		// 计算出按钮图片适配后的长宽
-		if (_storage && _storage.all() && _storage.get('buttons') && _storage.get('buttons').length) {
-			const buttons = $('#the-buttons').children();
-			for (let i = 0; i < buttons.length; i++) {
-				const btnWidth = $($(buttons[i]).children()[0]).width();
-				$($(buttons[i]).children()[0]).css({
-					width: btnWidth * _ratio
-				})
-			}
 		}
 	}
 
@@ -595,19 +661,96 @@
 	// 初始化storage
 	const factory = {};
 
-	function init(config) {
+	function init(config, isPreview) {
+		_is_preview = isPreview;
+		// 配置平台
+		if (!_is_preview) {
+			Promise.all(
+				[
+					// addCss('../../assets/activityAssets/libs/swiper/swiper.css'),
+					// addScript('../../assets/activityAssets/libs/swiper/swiper.js'),
+					// addCss('../../assets/activityassets/css/dragula.css'),
+					// addScript('../../assets/activityassets/js/dragula.js'),
+					// addScript('../../assets/activityassets/js/displace.js')
+
+					addCss('./src/libs/swiper/swiper.css'),
+					addScript('./src/libs/swiper/swiper.js'),
+					addCss('./src/css/dragula.css'),
+					addScript('./src/js/dragula.js'),
+					addScript('./src/js/displace.js')
+				]
+			).then(_ => {
+				setupSwiper();
+				contentsDisplace();
+				buttonsDisplace();
+				// 监听配置平台的数据发生了改变，配置平台通过对storage对象的save(key, value)方法进行变更数据
+				_storage.monitor(function (key, value) {
+					renderNode(key, value);
+					if (key === 'buttons' || key === 'rule') {
+						buttonsDisplace();
+					} else if (key === 'topBanner' || key === 'bottomBanner') {
+						setupSwiper();
+					}
+				})
+			});
+		} else {
+			Promise.all(
+				[
+					// addCss('../../assets/activityAssets/libs/swiper/swiper.css'),
+					// addScript('../../assets/activityAssets/libs/swiper/swiper.js'),
+
+					addCss('./src/libs/swiper/swiper.css'),
+					addScript('./src/libs/swiper/swiper.js'),
+				]
+			).then(_ => {
+				setupSwiper();
+			});
+		}
 		_storage = new Storage(config);
 		factory['storage'] = _storage;
-		// 监听配置平台的数据发生了改变，配置平台通过对storage对象的save(key, value)方法进行变更数据
-		_storage.monitor(function (key, value) {
-			renderNode(key, value);
-			if (key === 'buttons' || key === 'rule') {
-				buttonsDisplace();
-			}
-		})
 	}
+
+	function toast(msg, cb) {
+		const toastContainer = $('<div>', {
+			id: 'toast-container-dc'
+		}).css({
+			position: 'fixed',
+			top: 0,
+			left: 0,
+			width: _pagewidth,
+			height: '100%',
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		});
+		const toast = $('<div>').css({
+			backgroundColor: 'rgba(0, 0, 0, 0.8)',
+			padding: 30 * _ratio + 'px',
+			color: '#ffffff',
+			marginLeft: 40 * _ratio + 'px',
+			marginRight: 40 * _ratio + 'px',
+			textAlign: 'center',
+			lineHeight: '1.5',
+			fontSize: 30 * _ratio + 'px',
+			borderRadius: 5 * _ratio + 'px'
+		}).text(msg);
+		toast.appendTo(toastContainer);
+		toastContainer.appendTo('#the-current-page');
+
+		const timer = setTimeout(function () {
+			$('#toast-container-dc').remove();
+			if (cb && typeof cb === 'function') {
+				cb()
+			}
+			clearTimeout(timer);
+		}, 2000)
+	}
+
 	factory['renderDom'] = render;
 	factory['init'] = init;
+	factory['layer'] = {
+		toast: toast
+	};
 
 	return factory;
 });
