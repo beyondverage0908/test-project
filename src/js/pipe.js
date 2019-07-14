@@ -198,7 +198,7 @@
 				zIndex: 10,
 				cursor: 'pointer',
 			};
-			if (_is_preview) {
+			if (_is_preview && ['top', 'bottom'].indexOf(el.anchor) > -1) {
 				css.position = 'fixed';
 			} else {
 				css.position = 'absolute';
@@ -215,6 +215,19 @@
 				id: 'the-rule-entry',
 				'el-type': 'el-rule'
 			}).css(css);
+			if (!_is_preview && ['top', 'bottom'].indexOf(el.anchor) > -1) {
+				// 生成大头针
+				const pin = $('<div>').css({
+					width: '16' * _ratio + 'px',
+					height: '16' * _ratio + 'px',
+					position: 'absolute',
+					top: 0,
+					right: 0,
+					background: 'url(../../assets/activityAssets/img/fixed-pin.png) no-repeat 0 0',
+					backgroundSize: `${16 * _ratio}px ${16 * _ratio}px`
+				})
+				pin.appendTo(a);
+			}
 			img.appendTo(a);
 			return a;
 		} else if (el && el.type && (el.type === 'content' || el.type === 'passport')) {
@@ -242,12 +255,12 @@
 			const css = {
 				cursor: 'pointer',
 				position: 'absolute',
+				zIndex: 11
 			};
 			const props = {};
-			// debugger;
 			if (!_is_preview) {
 				css.top = el.position.top * _ratio + 'px',
-					css.left = el.position.left * _ratio + 'px'
+				css.left = el.position.left * _ratio + 'px'
 				props.class = el.__name;
 				props['el-type'] = 'el-button';
 				if (['top', 'bottom'].indexOf(el.anchor) > -1) {
@@ -286,13 +299,13 @@
 			if (!_is_preview && ['top', 'bottom'].indexOf(el.anchor) > -1) {
 				// 生成大头针
 				const pin = $('<div>').css({
-					width: '16px',
-					height: '16px',
+					width: '16' * _ratio + 'px',
+					height: '16' * _ratio + 'px',
 					position: 'absolute',
 					top: 0,
 					right: 0,
 					background: 'url(../../assets/activityAssets/img/fixed-pin.png) no-repeat 0 0',
-					backgroundSize: '16px 16px'
+					backgroundSize: `${16 * _ratio}px ${16 * _ratio}px`
 				})
 				pin.appendTo(a);
 			}

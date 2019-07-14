@@ -26,7 +26,7 @@
 				active: true, // true
 				image: './src/img/rule.png',
 				content: '',
-				anchor: 'top', // top, bottom, left, right, auto
+				anchor: 'auto', // top, bottom, left, right, auto
 				position: {
 					top: 110,
 					left: 220
@@ -69,7 +69,7 @@
 					target: 'web', // web, app
 					action: 'href', // href
 					url: 'http://www.baidu.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					code: 'codeNi',
 					anchor: 'top', // top, bottom, left, right, auto
 					position: {
@@ -125,7 +125,7 @@
 		};
 		setTimeout(function() {
 			pipe.init(ajaxConfig, false);
-			pipe.renderDom(600);
+			pipe.renderDom(320);
 			pipe.storage.listener(function (key, value) {
 				console.log(key, value);
 			});
@@ -140,7 +140,7 @@
 					target: 'web', // web, app
 					action: 'href', // href
 					url: 'http://www.baidu.com',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					code: 'codeNi',
 					anchor: 'left', // top, bottom, left, right, auto
 					position: {
@@ -166,7 +166,7 @@
 					target: 'app', // self, app
 					// https://marketing.eastmoney.com/html/transfer/html/go_download.html?url=http%3A%2F%2Facttg.eastmoney.com%2Fpub%2Fxxlout_dfcfappwap_random_0000171a
 					url: 'some-scheme.xx//',
-					image: 'http://127.0.0.1:9000/src/img/rank.png',
+					image: './src/img/rank.png',
 					code: 'codeNi',
 					position: {
 						top: 500,
