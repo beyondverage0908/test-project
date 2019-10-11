@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<meta name="viewport" content="width=750, user-scalable=0">
+	<meta http-equiv="pragma" content="no-cache">
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=750, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<link rel="stylesheet" href="./assets/css/passport-theme.css">
 	<title>测试</title>
 	<style>
 		body {
 			margin: 0px;
 		}
 	</style>
+	<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+	<script>eruda.init();</script>
+	<script src="./src/js/emk.min.1.0.6.js"></script>
 </head>
 <body>
 	<div id="the-current-page" style="position:absolute;">
@@ -17,6 +23,9 @@
 	
 	<script src="./src/libs/jquery-1.9.1.min.js"></script>
 	<script src="./src/js/pipe.js"></script>
+	<script>
+		// alert(document.body.clientWidth + ' ' + screen.width + ' ' + screen.availWidth);
+	</script>
 
 	<script>
 		const pipe = window.pipe;
@@ -61,14 +70,16 @@
 					buttonImage: 'https://gss0.bdstatic.com/5bVWsj_p_tVS5dKfpU_Y_D3/res/r/image/2017-09-26/352f1d243122cf52462a2e6cdcb5ed6d.png',
 					url: 'http://xxx.xxxx',
 					target: 'web', // web, app
+					theme: 'theme1'
 				}
 			],
 			buttons: [
 				{
 					type: 'button',
 					target: 'web', // web, app
-					action: 'href', // href
+					action: 'href', // href, scroll-top, share
 					url: 'http://www.baidu.com',
+					agentUrl: 'http://www.agent-url.html',
 					image: './src/img/rank.png',
 					code: 'codeNi',
 					anchor: 'top', // top, bottom, left, right, auto
@@ -111,8 +122,13 @@
 				}
 			],
 			share: {
+				shareUrl: {
+					wx: 'http://wx-share.html',
+					ttjj: 'http://ttjj-share.html',
+					dfcf: 'http://dfcf-share.html'
+				},
 				title: '分享title',
-				content: '分享内容',
+				content: '分享内容描述',
 				image: 'https://xx.xx.xx.png'
 			},
 			passport: {
@@ -124,8 +140,9 @@
 			}
 		};
 		setTimeout(function() {
-			pipe.init(ajaxConfig, false);
-			pipe.renderDom(320);
+			pipe.init(ajaxConfig, true);
+			const width = window.screen.width;
+			pipe.renderDom(width);
 			pipe.storage.listener(function (key, value) {
 				console.log(key, value);
 			});
@@ -133,58 +150,58 @@
 				console.log('xxxx');
 			});
 		}, 10);
-		setTimeout(function() {
-			pipe.storage.save('buttons', [
-				{
-					type: 'button',
-					target: 'web', // web, app
-					action: 'href', // href
-					url: 'http://www.baidu.com',
-					image: './src/img/rank.png',
-					code: 'codeNi',
-					anchor: 'left', // top, bottom, left, right, auto
-					position: {
-						top: 150,
-						left: 0
-					}
-				},
-				{
-					type: 'button',
-					target: 'web', // web, app
-					action: 'href', // href
-					url: 'http://www.baidu.com',
-					image: './src/img/rank.png',
-					code: 'codeNi',
-					position: {
-						top: 300,
-						left: 200,
-					}
-				},
-				{
-					type: 'button',
-					action: 'href',
-					target: 'app', // self, app
-					// https://marketing.eastmoney.com/html/transfer/html/go_download.html?url=http%3A%2F%2Facttg.eastmoney.com%2Fpub%2Fxxlout_dfcfappwap_random_0000171a
-					url: 'some-scheme.xx//',
-					image: './src/img/rank.png',
-					code: 'codeNi',
-					position: {
-						top: 500,
-						left: 200
-					}
-				}
-			], 'configer');
-			pipe.storage.save('topBanner', [
-			{
-				image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
-				url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-				action: 'href', // app, href, passport
-			}, {
-					image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
-					url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
-					action: 'app', // app, href, passport
-			}], 'configer');
-		}, 5000)
+		// setTimeout(function() {
+		// 	// pipe.storage.save('buttons', [
+		// 	// 	{
+		// 	// 		type: 'button',
+		// 	// 		target: 'web', // web, app
+		// 	// 		action: 'href', // href
+		// 	// 		url: 'http://www.baidu.com',
+		// 	// 		image: './src/img/rank.png',
+		// 	// 		code: 'codeNi',
+		// 	// 		anchor: 'left', // top, bottom, left, right, auto
+		// 	// 		position: {
+		// 	// 			top: 150,
+		// 	// 			left: 0
+		// 	// 		}
+		// 	// 	},
+		// 	// 	{
+		// 	// 		type: 'button',
+		// 	// 		target: 'web', // web, app
+		// 	// 		action: 'href', // href
+		// 	// 		url: 'http://www.baidu.com',
+		// 	// 		image: './src/img/rank.png',
+		// 	// 		code: 'codeNi',
+		// 	// 		position: {
+		// 	// 			top: 300,
+		// 	// 			left: 200,
+		// 	// 		}
+		// 	// 	},
+		// 	// 	{
+		// 	// 		type: 'button',
+		// 	// 		action: 'href',
+		// 	// 		target: 'app', // self, app
+		// 	// 		// https://marketing.eastmoney.com/html/transfer/html/go_download.html?url=http%3A%2F%2Facttg.eastmoney.com%2Fpub%2Fxxlout_dfcfappwap_random_0000171a
+		// 	// 		url: 'some-scheme.xx//',
+		// 	// 		image: './src/img/rank.png',
+		// 	// 		code: 'codeNi',
+		// 	// 		position: {
+		// 	// 			top: 500,
+		// 	// 			left: 200
+		// 	// 		}
+		// 	// 	}
+		// 	// ], 'configer');
+		// 	// pipe.storage.save('topBanner', [
+		// 	// {
+		// 	// 	image: 'http://choicewechatreport.eastmoney.com/static/img/header.a659903.png',
+		// 	// 	url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+		// 	// 	action: 'href', // app, href, passport
+		// 	// }, {
+		// 	// 		image: 'http://183.136.162.242/fileupload/WeChatV/9986014488792464.png',
+		// 	// 		url: 'http://choice.eastmoney.com/Mobile/Register/?uid=9986014488792464&returnUrl=/activity/register/m/success.html',
+		// 	// 		action: 'app', // app, href, passport
+		// 	// }], 'configer');
+		// }, 5000)
 
 
 		// 模拟配置平台消息		

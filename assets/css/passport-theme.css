@@ -1,0 +1,208 @@
+
+/* theme 1的配置 */
+.passport-theme1 {
+	background-color: #ffffff;
+}
+
+.passport-theme1 #passport-mobile-code-container div div .mobile-prefix {
+	color: #333333;
+}
+
+.passport-theme1 #passport-mobile-code-container div div #mobile-number-id {
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.2);
+	color: #F9C1A4;
+	width: 100%;
+}
+
+.passport-theme1 #passport-mobile-code-container div div #mobile-verifycode-id {
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #333333;
+}
+
+.passport-theme1 #passport-mobile-code-container div div #btn-verifycode-id {
+	color: #F9C1A4;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+}
+
+.passport-theme1 #passport-mobile-code-container .notice {
+    color: #C1C1C3;
+    text-align: center;
+}
+
+.passport-theme1 .code-item {
+	position:relative
+}
+.passport-theme1 .code-item input{
+	width:100%;
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 8px 4px;
+    font-size: 24px;
+    color: #333333;
+}
+.passport-theme1 .code-item .code-btn{
+	height: 100%;
+    line-height: 1;
+	background:transparent;
+	border:none;
+	outline:none;
+	display:inline-block;
+	position:absolute;
+	top:0;
+	right:0;
+}
+.passport-theme1 .code-item .code-btn.active{
+	background: #666  !important;
+	color: #fff !important;
+}
+
+
+/* theme 2的配置 */
+.passport-theme2 {
+	background-color: #f1f1f1;
+}
+
+.passport-theme2 #passport-mobile-code-container div div #mobile-number-id {
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #fff;
+	color: #666;
+	width: 100%;
+}
+
+.passport-theme2 #passport-mobile-code-container div div #mobile-verifycode-id {
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #FFF;
+	color: #666;
+}
+
+.passport-theme2 #passport-mobile-code-container div div #btn-verifycode-id {
+	color: #F9C1A4;
+    display: inline-block;
+    text-align: center;
+	cursor: pointer;
+	background-color: #111111;
+}
+
+.passport-theme2 #passport-mobile-code-container .notice {
+    color: #C1C1C3;
+    text-align: center;
+}
+
+.passport-theme2 .code-item {
+	position:relative
+}
+.passport-theme2 .code-item input{
+	width:100%;
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #FFF;
+    padding: 8px 4px;
+    font-size: 24px;
+    color: #666;
+}
+.passport-theme2 .code-item .code-btn{
+	height: 100%;
+    line-height: 1;
+	background:transparent;
+	border:none;
+	outline:none;
+	display:inline-block;
+	position:absolute;
+	top:0;
+	right:0;
+}
+.passport-theme2 .code-item .code-btn.active{
+	background: #666  !important;
+	color: #fff !important;
+}
+
+
+/* theme 3的配置 */
+.passport-theme3 {
+	background-color: #f0faff;
+}
+
+.passport-theme3 #passport-mobile-code-container div div #mobile-number-id {
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #F1F1F1;
+	color: #F9C1A4;
+	width: 100%;
+	border: 1px solid #dcdee2;
+	border-radius: 3px;
+}
+
+.passport-theme3 #passport-mobile-code-container div div .verify-prefix {
+	color: #333333;
+}
+
+.passport-theme3 #passport-mobile-code-container div div #mobile-verifycode-id {
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #F1F1F1;
+	color: #333333;
+	border: 1px solid #dcdee2;
+    border-radius: 3px;
+}
+
+.passport-theme3 #passport-mobile-code-container div div #btn-verifycode-id {
+	color: #FFFFFF;
+    display: inline-block;
+    text-align: center;
+	cursor: pointer;
+	background-color: #2d8cf0;
+	border-radius: 0 3px 3px 0;
+}
+
+.passport-theme3 #passport-mobile-code-container .notice {
+    color: #c5c8ce;
+    text-align: center;
+}
+
+.passport-theme3 .code-item {
+	position:relative
+}
+.passport-theme3 .code-item input{
+	width:100%;
+	border-style: none;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #F1F1F1;
+    padding: 8px 4px;
+    font-size: 24px;
+	color: #333333;
+	border: 1px solid #dcdee2;
+    border-radius: 3px;
+}
+.passport-theme3 .code-item .code-btn{
+	height: 100%;
+    line-height: 1;
+	background:transparent;
+	border:none;
+	outline:none;
+	display:inline-block;
+	position:absolute;
+	top:0;
+	right:0;
+}
+.passport-theme3 .code-item .code-btn.active{
+	background: #666  !important;
+	color: #fff !important;
+}
